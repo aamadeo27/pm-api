@@ -25,7 +25,6 @@ jobs:
       - name: Run Tests
         run: |
           echo "Starting a new container..."
-          docker network create pm-network || echo "Network already exists"
           docker run --rm -d --name pm-api dockerhub-username/pm-api:latest --network pm-network
           echo "Running tests..."
           docker exec pm-api npm test
