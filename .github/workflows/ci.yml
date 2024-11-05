@@ -20,12 +20,12 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t dockerhub-username/pm-api:latest .
+          docker build -t pm-api:latest .
 
       - name: Run Tests
         run: |
           echo "Starting a new container..."
-          docker run --rm -d --name pm-api dockerhub-username/pm-api:latest --network pm-network
+          docker run --rm -d --name pm-api pm-api:latest --network pm-network
           echo "Running tests..."
           docker exec pm-api npm test
           docker stop pm-api
