@@ -25,7 +25,7 @@ jobs:
       - name: Run Tests
         run: |
           echo "Starting a new container..."
-          docker run --rm -d --name api-container dockerhub-username/pm-api-image:latest
+          docker run --rm -d --name pm-api dockerhub-username/pm-api:latest
           echo "Running tests..."
           docker exec pm-api npm test
           docker stop pm-api
