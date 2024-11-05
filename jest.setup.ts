@@ -4,12 +4,14 @@ import supertest from 'supertest'
 const PORT = 4001
 let app
 let server
+let assignedPort
 global.request = null
 beforeAll(async () => {
   app = await startServer()
 
-  server = app.listen(PORT, () => {
-    console.log(`Test Server is running in port ${PORT}`)
+  server = app.listen(0, () => {
+    assignedPort = (server.address() as any).port
+    console.log(`Test Server is running in port ${assignedPort}`)
   })
   
   jest.setTimeout(3000); // Set a global timeout of 10 seconds for Jest
