@@ -12,7 +12,5 @@ describe('Hello Graphql', () => {
     })
 
     expect(response.body.data.hello).toBe('Hello World')
-
-    console.log('Test complete')
   })
 })

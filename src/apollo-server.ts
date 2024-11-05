@@ -61,15 +61,11 @@ export async function startServer(){
         }
       }
 
-      console.log('Returning')
-
       return { user }
     }
   }))
   
   app.get('/csrf-token', (req: Request, res: Response) => {
-    console.log(req.csrfToken)
-
     res.send({ csrfToken: req.csrfToken })
   })
 
