@@ -8,28 +8,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      docker:
-        image: docker:20.10.7
-        options: --privileged
-        env:
-          DOCKER_BUILDKIT: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build Docker image
+      - name: Install Dependencies
         run: |
-          docker build -t dockerhub-username/pm-api:latest
+          npm i
 
-      - name: Run Tests
+      - name: Run UI Tests
         run: |
-          docker run --rm -d --name pm-api dockerhub-username/pm-api:latest
-          docker exec -it pm-api npm test
-          docker stop pm-api
+          npm test
