@@ -13,8 +13,8 @@ Features
 ## **1. User Management**
 
 ### **1.1 User Authentication**
-- **[1 point]** Set up JWT-based authentication.
-- **[2 points]** Implement GraphQL mutations for user registration, login, and logout.
+~~- **[1 point]** Set up JWT-based authentication.~~
+~~- **[2 points]** Implement GraphQL mutations for user registration, login, and logout.~~
 - **[1 point]** Implement token verification middleware for private routes.
 
 
