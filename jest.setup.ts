@@ -1,4 +1,4 @@
-import { startServer, apolloServer } from './src/apollo-server'
+import { startServer, apolloServer } from './src/server'
 import supertest from 'supertest'
 
 const PORT = 4000

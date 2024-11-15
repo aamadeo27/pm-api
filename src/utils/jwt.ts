@@ -1,8 +1,9 @@
+import { User } from '@prisma/client'
 import jwt from 'jsonwebtoken'
 
-export function generateToken(user: { id: string, email: string }){
+export function generateToken(user: Pick<User,'id' | 'name' | 'email'>){
   return jwt.sign(
-    { userId: user.id, email: user.email }, 
+    user, 
     process.env.JWT_SECRET as string, 
     { expiresIn: '1h' }
   )

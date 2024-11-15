@@ -13,3 +13,10 @@ export class AuthorizationError extends ApolloError {
     Object.setPrototypeOf(this, ApolloError.prototype)
   }
 }
+
+export class InvalidInputError extends ApolloError { 
+  constructor(message: string, statusCode: number = 400){
+    super(message, 'INVALID_INPUT_ERROR')
+    Object.setPrototypeOf(this, ApolloError.prototype)
+  }
+}
