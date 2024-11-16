@@ -30,7 +30,8 @@ const config: Config = {
   // An array of regexp pattern strings used to skip coverage collection
   coveragePathIgnorePatterns: [
     "\\\\node_modules\\\\",
-    "\\\\dist\\\\"
+    "\\\\dist\\\\",
+    '@prisma\\\\client' // Ignore source maps in @prisma/client
   ],
 
   // Indicates which provider should be used to instrument code for coverage
