@@ -28,8 +28,10 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
           DISABLE_PRISMA_SOURCE_MAPS: true
-          DATABASE_URL: postgresql://testuser:testpassword@localhost:5444/testdb?schema=public
     steps:
+      - name Setup Environment
+        run: echo "DATABASE_URL=postgresql://testuser:testpassword@localhost:5444/testdb?schema=public" >> $GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v3
 
