@@ -1,12 +1,16 @@
 import supertest from "supertest"
+import express from "express"
+import { PrismaClient } from "@prisma/client";
 
 declare global {
   var request: supertest.SuperTest<supertest.Test>
-}
+  var db: PrismaClient
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    csrfToken?: string;
+  namespace Express {
+    export interface Request {
+      csrfToken?: string;
+      res?: Response
+    }
   }
 }
 

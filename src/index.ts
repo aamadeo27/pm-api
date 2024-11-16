@@ -1,4 +1,4 @@
-import { startServer } from "./apollo-server"
+import { startServer } from './server'
 
 const PORT = process.env.PORT || 3000
 

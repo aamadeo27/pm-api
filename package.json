@@ -7,7 +7,12 @@
     "dev": "nodemon src/index.ts",
     "start": "node dist/index.js",
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "prisma:generate": "prisma generate",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy -f",
+    "migrate:reset": "prisma migrate reset -f",
+    "repl": "ts-node --files -r ./src/utils/setup-env -r ./src/utils/setup-repl"
   },
   "author": "",
   "license": "ISC",
@@ -18,6 +23,7 @@
     "@prisma/client": "^5.21.1",
     "@types/graphql": "^14.5.0",
     "apollo-server-errors": "^3.3.1",
+    "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -32,9 +38,11 @@
   },
   "devDependencies": {
     "@graphql-tools/mock": "^9.0.5",
+    "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.7",
     "@types/cors": "^2.8.17",
     "@types/csrf": "^3.1.3",
+    "@types/csurf": "^1.11.5",
     "@types/express": "^5.0.0",
     "@types/helmet": "^4.0.0",
     "@types/jest": "^29.5.14",

@@ -8,16 +8,13 @@ RUN npm i
 
 COPY . .
 
-RUN npm run build
+RUN apt-get update -y && apt-get install -y openssl
 
-FROM node:18-slim
-
-WORKDIR /app
-
-COPY --from=build /app /app
+RUN npm run prisma:generate
 
 EXPOSE 3000
 
 ENV NODE_ENV=production
+ENV DATABASE_URL=${DATABASE_URL}
 
 CMD ["npm","start"]
