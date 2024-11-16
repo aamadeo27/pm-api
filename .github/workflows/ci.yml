@@ -51,7 +51,7 @@ jobs:
       - name: Run Tests
         run: |
           docker run --rm -d --name pm-api \
-            -e DATABASE_URL="postgresql://testuser:testpassword@localhost:5432/testdb"
+            -e DATABASE_URL="postgresql://testuser:testpassword@localhost:5432/testdb" \
             --networ="host" \
             dockerhub-username/pm-api:latest
           docker exec pm-api npm run migrate:deploy
