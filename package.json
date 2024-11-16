@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "test": "jest",
     "build": "tsc",
+    "prisma:generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "repl": "ts-node --files -r ./src/utils/setup-env -r ./src/utils/setup-repl"
