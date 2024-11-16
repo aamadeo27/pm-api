@@ -31,7 +31,7 @@ const config: Config = {
   coveragePathIgnorePatterns: [
     "\\\\node_modules\\\\",
     "\\\\dist\\\\",
-    '@prisma\\\\client' // Ignore source maps in @prisma/client
+    "\\\\@prisma\\\\client",
   ],
 
   // Indicates which provider should be used to instrument code for coverage
