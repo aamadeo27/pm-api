@@ -27,7 +27,6 @@ jobs:
         options: --privileged
         env:
           DOCKER_BUILDKIT: 1
-          DATABASE_URL: postgresql://testuser:testpassword@pm-db:5432/testdb?schema=public
     steps:
       - name: Checkout
         uses: actions/checkout@v3
