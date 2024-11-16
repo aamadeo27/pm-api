@@ -8,9 +8,9 @@ RUN npm i
 
 COPY . .
 
-RUN npm run build
-
 RUN npm run prisma:generate
+
+RUN npm run build
 
 FROM node:18-slim
 
