@@ -10,6 +10,8 @@ COPY . .
 
 RUN npm run build
 
+RUN npm run prisma:generate
+
 FROM node:18-slim
 
 WORKDIR /app
