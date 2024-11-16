@@ -9,6 +9,7 @@
     "test": "jest",
     "build": "tsc",
     "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
     "repl": "ts-node --files -r ./src/utils/setup-env -r ./src/utils/setup-repl"
   },
   "author": "",
