@@ -40,7 +40,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t dockerhub-username/pm-api:latest
+          docker build -t dockerhub-username/pm-api:latest .
 
       - name: Wait for PostgreSQL to be ready
         run: |
