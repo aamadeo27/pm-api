@@ -16,7 +16,7 @@ jobs:
           POSTGRES_PASSWORD: testpassword
           POSTGRES_DB: testdb
         ports:
-          - 5432:5432
+          - 5444:5432
         options: >-
           --health-cmd="pg_isready -U testuser"
           --health-timeout=30s
@@ -27,19 +27,13 @@ jobs:
         options: --privileged
         env:
           DOCKER_BUILDKIT: 1
+          DISABLE_PRISMA_SOURCE_MAPS: true
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build Docker image
-        run: |
-          docker build -t dockerhub-username/pm-api:latest .
+      - name: Install
+        run: npm ci
 
       - name: Wait for PostgreSQL to be ready
         run: |
@@ -48,12 +42,12 @@ jobs:
             sleep 2
           done
 
+      - name: Prisma Setup
+        run: |
+          npm run migrate:reset
+          npm run prisma:generate 
+
       - name: Run Tests
         run: |
-          docker run --rm -d --name pm-api \
-            -e DATABASE_URL="postgresql://testuser:testpassword@localhost:5432/testdb" \
-            --network="host" \
-            dockerhub-username/pm-api:latest
-          docker exec pm-api npm run migrate:deploy
-          docker exec pm-api npm run test
-          docker stop pm-api
+          ls -l node_modules/@prisma/client/runtime
+          npm run test

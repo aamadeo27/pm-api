@@ -10,7 +10,8 @@
     "build": "tsc",
     "prisma:generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
-    "migrate:deploy": "prisma migrate deploy",
+    "migrate:deploy": "prisma migrate deploy -f",
+    "migrate:reset": "prisma migrate reset -f",
     "repl": "ts-node --files -r ./src/utils/setup-env -r ./src/utils/setup-repl"
   },
   "author": "",
