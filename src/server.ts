@@ -2,14 +2,13 @@ import { ApolloServer } from "@apollo/server"
 import { typeDefs, resolvers, Context } from './graphql'
 import formatError from "./utils/format-error"
 import cors from "cors"
-import express, { NextFunction, Request, Response, json} from "express"
+import express, { json } from "express"
 import helmet from "helmet"
 import cookieParser from "cookie-parser"
-import csrf from "csrf"
 import { expressMiddleware } from "@apollo/server/express4"
 import 'dotenv/config'
-import { errorHandler } from "./middleware/errorHandler"
-import contextMiddleware from "./middleware/contextMiddleware"
+import { errorHandler } from "./middleware/error-handler"
+import contextMiddleware from "./middleware/context-middleware"
 import restRoutes from "./rest/routes/v1"
 
 export const apolloServer = new ApolloServer<Context>({
@@ -30,27 +29,8 @@ export async function startServer(){
   
   await apolloServer.start()
   
-  const csrfProtection = new csrf()
-  app.use((req: Request,res: Response, next: NextFunction) => {
-
-    let csrfToken = req.cookies['csrf-token']
-
-    if (!csrfToken){
-      csrfToken = csrfProtection.create(process.env.CSRF_SECRET ?? 'shouldexist')
-      res.cookie('csrf-token', csrfToken, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-        path: '/'
-      })
-    }
-
-    ;(req as any).csrfToken = csrfToken
-    next()
-  })
-  
-  app.use('/graphql', json(), expressMiddleware(apolloServer, {
-    context: contextMiddleware(csrfProtection)
+  app.use('/graphql', expressMiddleware(apolloServer, {
+    context: contextMiddleware
   }))
   
   app.use('/v1', restRoutes)
