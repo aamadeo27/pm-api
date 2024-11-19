@@ -8,7 +8,6 @@ declare global {
 
   namespace Express {
     export interface Request {
-      csrfToken?: string;
       res?: Response
     }
   }
