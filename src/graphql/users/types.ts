@@ -7,11 +7,18 @@ export type UserCreationInput = {
 }
 
 export const typeDefs = gql`
+  enum AppRole {
+    admin
+    project_manager
+    team_member
+  }
+
   type User {
     id: Int!
     name: String!
     email: String!
     active: Boolean!
+    role: AppRole!
   }
 
   input UserCreationInput {
@@ -25,6 +32,6 @@ export const typeDefs = gql`
   }
 
   type Query {
-    hello: String
+    current_user: User
   }
 `

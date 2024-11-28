@@ -25,10 +25,10 @@ export const login = async(req: Request, res: Response) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    maxAge: 3600000,
+    maxAge: 30*24*3600000,
   })
 
-  res.status(200).send()
+  res.status(200).send({ jwt: token })
 }
 
 export const tokens = (req: Request<Context>, res: Response) => {
