@@ -7,7 +7,14 @@ import { InvalidInputError, AuthenticationError } from "../../errors/ApolloCusto
 
 export const resolvers: IResolvers<any, Context> = {
   Query: {
-    hello: () => 'Hello World'
+    current_user: (_: unknown, __: unknown, { user }: Context) => {
+      console.log('User: ', user)
+      if (!user) {
+        throw new AuthenticationError(`You're not an authenticated user`)
+      }
+
+      return user
+    }
   },
   Mutation: {
     create_user: async function(parent: unknown, args: UserCreationInput, ctx: Context) {

@@ -3,13 +3,10 @@ import { verifyToken } from "./jwt"
 
 export default async function({ req, res }: { req: Request, res: Response }){
   const token = req.headers.authorization ?? '';
-  let user = null;
 
+  let user = null
   if (token) {
-    const decodedToken = verifyToken(token.replace('Bearer ', '')) as any
-    if (decodedToken) {
-      user = { id: decodedToken.userId, email: decodedToken.email, role: decodedToken.role }
-    }
+    user = verifyToken(token.replace('Bearer ', '')) as any
   }
 
   return { user }
