@@ -1,0 +1,174 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Minimal EC2 Instance for testing with VPC integration.
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    Description: EC2 Instance Type
+  CreateRDS:
+    Type: String
+    Default: no
+    AllowedValues: [yes, no]
+    Description: Set to yes to create an RDS database
+  DatabasePassword:
+    Type: String
+    Default: '2010-09-09'
+    NoEcho: true
+    Description: Password for the RDS Database.
+
+# Conditions:
+#   CreateRDSCondition: !Equals [!Ref CreateRDS, yes]
+
+Resources:
+  PmVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MyTestVPC
+
+  MyPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PmVPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [0, !GetAZs '' ]
+      Tags:
+        - Key: Name
+          Value: MyPublicSubnet
+
+  DBSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref PmVPC
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [1, !GetAZs '' ]
+      Tags:
+        - Key: Name
+          Value: DBSubnetB
+
+  MyInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: MyInternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref PmVPC
+      InternetGatewayId: !Ref MyInternetGateway
+
+  MyPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref PmVPC
+      Tags:
+        - Key: Name
+          Value: MyPublicRouteTable
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref MyPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref MyInternetGateway
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref MyPublicSubnet
+      RouteTableId: !Ref MyPublicRouteTable
+
+  DBSubnetGroup:
+    # Condition: CreateRDSCondition
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS
+      SubnetIds:
+        - !Ref MyPublicSubnet
+        - !Ref DBSubnetB
+
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EC2 instances
+      VpcId: !Ref PmVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  DBSecurityGroup:
+    # Condition: CreateRDSCondition
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable PostgreSQL access
+      VpcId: !Ref PmVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: 10.0.0.0/16
+  
+  Database:
+    # Condition: CreateRDSCondition
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.micro
+      Engine: postgres
+      DBNAme: pmdb
+      MasterUsername: pmuser
+      MasterUserPassword:
+        Fn::Sub: "{{resolve:secretsmanager:rds-password}}"
+      AllocatedStorage: 20
+      VPCSecurityGroups:
+        - !GetAtt DBSecurityGroup.GroupId
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      MultiAZ: false
+      PubliclyAccessible: false
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0c02fb55956c7d316
+      InstanceType: !Ref InstanceType
+      KeyName: MyKeyPair
+      SubnetId: !Ref MyPublicSubnet
+      UserData:
+        Fn::Base64: |
+          #!/bin/bash
+          # Install Docker and Docker Compose
+          yum update -y
+          amazon-linux-extras install docker
+          service docker start
+          usermod -a -G docker ec2-user
+          systemctl enable docker
+
+          # Build DATABASE_URL
+          PASSWORD=$(aws secretsmanager get-secret-value --secret-id rds-password --query 'SecretString' --output text | jq -r .password )
+          HOST=$(aws rds describe-db-instances --db-instance-identifier !Ref Database --query 'DBInstances[0].Endpoint.Address' --output text)
+          DATABASE_URL="postgresql://pmuser:${PASSWORD}@HOST/pmdb"
+
+          docker run -d --name backend -e DATABASE_URL=${DATABASE_URL} aamadeo/backend:latest
+          docker run -d --name frontend -p 443:443 aamadeo/frontend:latest
+      Tags:
+        - Key: Name
+          Value: EC2Instance
+
+Outputs:
+  VPCId:
+    Description: The ID of the created VPC.
+    Value: !Ref PmVPC
