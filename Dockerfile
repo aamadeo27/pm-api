@@ -1,20 +1,14 @@
-from node:18 AS  build
+FROM node:18
 
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN npm i
-
 COPY . .
-
+RUN rm -rf node_modules
+RUN npm i
 RUN apt-get update -y && apt-get install -y openssl
-
-RUN npm run prisma:generate
+RUN npm run build
 
 EXPOSE 3000
-
-ENV NODE_ENV=production
-ENV DATABASE_URL=${DATABASE_URL}
 
 CMD ["npm","start"]

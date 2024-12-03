@@ -37,6 +37,7 @@ export const resolvers: IResolvers<any, Context> = {
           email: args.email,
           password: passwdHash,
           active: true,
+          team_id: args.team_id,
         }
       })
     }

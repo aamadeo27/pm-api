@@ -25,8 +25,45 @@ model User {
   email      String   @unique
   password   String
   role       AppRole  @default(team_member)
+  team_id    Int
   created_at DateTime @default(now())
   active     Boolean  @default(false)
 
+  team  Team   @relation("TeamMembers", fields: [team_id], references: [id])
+  tasks Task[]
+
   @@index(fields: [email])
+}
+
+model Team {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+
+  members  User[]    @relation("TeamMembers")
+  projects Project[]
+}
+
+model Project {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  team_id    Int
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  team  Team   @relation(fields: [team_id], references: [id])
+  tasks Task[]
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  project_id  Int
+  assignee_id Int?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @default(now())
+
+  project  Project @relation(fields: [project_id], references: [id])
+  assignee User?    @relation(fields: [assignee_id], references: [id])
 }

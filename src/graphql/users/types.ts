@@ -4,6 +4,7 @@ export type UserCreationInput = {
   name: string
   email: string
   password: string
+  team_id: number
 }
 
 export const typeDefs = gql`
@@ -19,16 +20,14 @@ export const typeDefs = gql`
     email: String!
     active: Boolean!
     role: AppRole!
-  }
+    team_id: Int!
 
-  input UserCreationInput {
-    name: String!
-    email: String!
-    password: String!
+    team: Team!
+    tasks: [Task]!
   }
 
   type Mutation {
-    create_user(email: String!, name: String!, password: String!): User
+    create_user(email: String!, name: String!, password: String!, team_id: Int!): User
   }
 
   type Query {
