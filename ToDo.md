@@ -15,12 +15,12 @@ Features
 ### **1.1 User Authentication**
 - ~~**[1 point]** Set up JWT-based authentication.~~
 - ~~**[2 points]** Implement GraphQL mutations for user registration, login, and logout.~~
-- **[1 point]** Implement token verification middleware for private routes.
+- ~~**[1 point]** Implement token verification middleware for private routes.~~
 
 
 ### **1.2 User Authorization**
-- **[2 points]** Define roles (Admin, Project Manager, Team Member) and permissions.
-- **[3 points]** Implement role-based access control middleware.
+- ~~**[2 points]** Define roles (Admin, Project Manager, Team Member) and permissions.~~
+- ~~**[3 points]** Implement role-based access control middleware.~~
 
 ### **1.3 Profile Management**
 - **[3 points]** Implement CRUD operations for user profile updates.
