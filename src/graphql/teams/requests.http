@@ -1,0 +1,67 @@
+### Create Team
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+
+{
+  "operation": "CreateTeam",
+  "query": "mutation CreateTeam($name: String!) { create_team(name: $name){ id name } }",
+  "variables": {
+    "name": "PiedPiper"
+  }
+}
+
+### Update Team
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "UpdateTeam",
+  "query": "mutation UpdateTeam($id: Int!, $name: String!) { update_team(id: $id, name: $name){ id name } }",
+  "variables": {
+    "id": 4,
+    "name": "Los peebes"
+  }
+}
+
+### Delete Team
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "DeleteTeam",
+  "query": "mutation DeleteTeam($id: Int!) { delete_team(id: $id){ id name } }",
+  "variables": {
+    "id": 4
+  }
+}
+
+
+### Get Team
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "GetTeam",
+  "query": "query GetTeam($id: Int!){\n team(id: $id){ id name } }",
+  "variables": {
+    "id": 1
+  }
+}
+
+### Get Teams
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "GetTeams",
+  "query": "query GetTeams($name: String){\n teams(name: $name) { id name } }",
+  "variables": {
+    "name": ""
+  }
+}

@@ -1,3 +1,4 @@
+import { AppRole } from "@prisma/client"
 import gql from "graphql-tag"
 
 export type UserCreationInput = {
@@ -5,6 +6,22 @@ export type UserCreationInput = {
   email: string
   password: string
   team_id: number
+}
+
+export type UserUpdateInput = {
+  id: number
+  name?: string
+  password?: string
+  team_id?: number
+  active?: boolean
+  role?: AppRole
+}
+
+export type UsersQueryInput = {
+  name?: string
+  team_id?: number
+  active?: boolean
+  role?: AppRole
 }
 
 export const typeDefs = gql`
@@ -26,11 +43,31 @@ export const typeDefs = gql`
     tasks: [Task]!
   }
 
+  input UserUpdateInput {
+    id: Int!
+    name: String
+    password: String
+    active: Boolean
+    role: AppRole
+    team_id: Int
+  }
+
+  input UserCreateInput {
+    email: String!
+    name: String!
+    password: String!
+    team_id: Int!
+  }
+
   type Mutation {
-    create_user(email: String!, name: String!, password: String!, team_id: Int!): User
+    create_user(args: UserCreateInput!): Boolean!
+    update_user(args: UserUpdateInput!): User!
+    delete_user(id: Int!): User!
   }
 
   type Query {
-    current_user: User
+    current_user: User!
+    user(id: Int!): User!
+    users(name: String, role: AppRole, team_id: Int, active: Boolean): [User!]
   }
 `

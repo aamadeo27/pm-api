@@ -20,3 +20,10 @@ export class InvalidInputError extends ApolloError {
     Object.setPrototypeOf(this, ApolloError.prototype)
   }
 }
+
+export class NotFoundError extends ApolloError { 
+  constructor(message: string, statusCode: number = 400){
+    super(message, 'NOT_FOUND_ERROR')
+    Object.setPrototypeOf(this, ApolloError.prototype)
+  }
+}

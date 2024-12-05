@@ -1,0 +1,66 @@
+### Create Project
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "CreateProject",
+  "query": "mutation CreateProject($name: String!) { create_project(name: $name){ id name } }",
+  "variables": {
+    "name": ""
+  }
+}
+
+### Update Project
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "UpdateProject",
+  "query": "mutation UpdateProject($id: Int!, $name: String!) { update_project(id: $id, name: $name){ id name } }",
+  "variables": {
+    "id": 1,
+    "name": "Esta Pegao"
+  }
+}
+
+### Delete Project
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "DeleteProject",
+  "query": "mutation DeleteProject($id: Int!) { delete_project(id: $id){ id name team_id } }",
+  "variables": {
+    "id": 1
+  }
+}
+
+
+### Get Project
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "GetProject",
+  "query": "query GetProject($id: Int!){\n project(id: $id){ id name } }",
+  "variables": {
+    "id": 1
+  }
+}
+
+### Get Projects
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "GetProjects",
+  "query": "query GetProjects($name: String){\n projects(name: $name) { id name } }",
+  "variables": {
+    "name": ""
+  }
+}

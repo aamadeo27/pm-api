@@ -1,0 +1,74 @@
+### Create User
+POST http://localhost:3000/graphql
+Content-Type: application/json
+
+{
+  "operation": "CreateUser",
+  "query": "mutation Createuser($args: UserCreateInput!) { create_user(args: $args) }",
+  "variables": {
+    "args": {
+      "name": "Russ Hanneman",
+      "email": "rhanneman@piedpiper.com",
+      "password": "billionaire",
+      "team_id": 1
+    }
+  }
+}
+
+### Update User
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+
+{
+  "operation": "UpdateUser",
+  "query": "mutation UpdateUser($args: UserUpdateInput!) { update_user(args: $args){ id name } }",
+  "variables": {
+    "args": {
+      "id": 13,
+      "name": "Russy"
+    }
+  }
+}
+
+### Delete User
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+
+{
+  "operation": "DeleteUser",
+  "query": "mutation DeleteUser($id: Int!) { delete_user(id: $id){ id name email role team_id } }",
+  "variables": {
+    "id": 13
+  }
+}
+
+
+### Get User
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "GetUser",
+  "query": "query GetUser($id: Int!){\n user(id: $id){ id name role team_id } }",
+  "variables": {
+    "id": 12
+  }
+}
+
+### Get Users
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "GetUssers",
+  "query": "query GetUssers($role: AppRole){\n users(role: $role) { id name role team_id } }",
+  "variables": {
+    "role": "team_member"
+  }
+}

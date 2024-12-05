@@ -3,7 +3,7 @@ import { AuthorizationError } from "../errors/ApolloCustomErrors"
 import ac from "./permissions"
 
 
-export async function allowRoleGQL(role: AppRole, gqlEndpoint: string){
+export function allowRoleGQL(role: AppRole, gqlEndpoint: string){
   if (role === AppRole.admin) return
 
   if (!ac.can(role).read(gqlEndpoint).granted){

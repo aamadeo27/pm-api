@@ -1,0 +1,72 @@
+### Create Task
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "CreateTask",
+  "query": "mutation CreateTask($args: TaskCreateInput!){ create_task(args: $args){ id name description project_id } }",
+  "variables": {
+    "args": {
+      "name": "Kill the Batman",
+      "description": "Drive Harvey Dent crazy and he will kill the batman",
+      "project_id": 2
+    }
+  }
+}
+
+### Update Task
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "UpdateTask",
+  "query": "mutation UpdateTask($args: TaskUpdateInput!){ update_task(args: $args){ id name } }",
+  "variables": {
+    "args":{
+      "id": 2,
+      "assignee_id": 1
+    }
+  }
+}
+
+### Delete Task
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "DeleteTask",
+  "query": "mutation DeleteTask($id: Int!) { delete_task(id: $id){ id name } }",
+  "variables": {
+    "id": 3
+  }
+}
+
+
+### Get Task
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "GetTask",
+  "query": "query GetTask($id: Int!){\n task(id: $id){ id name } }",
+  "variables": {
+    "id": 4
+  }
+}
+
+### Get Tasks
+POST http://localhost:3000/graphql
+Content-Type: application/json
+Authorization: Bearer Token
+
+{
+  "operation": "GetTasks",
+  "query": "query GetTasks($name: String){\n tasks(name: $name) { id name description } }",
+  "variables": {
+    "name": ""
+  }
+}
