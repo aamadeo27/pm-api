@@ -22,7 +22,7 @@ export class InvalidInputError extends ApolloError {
 }
 
 export class NotFoundError extends ApolloError { 
-  constructor(message: string, statusCode: number = 400){
+  constructor(message: string, statusCode: number = 404){
     super(message, 'NOT_FOUND_ERROR')
     Object.setPrototypeOf(this, ApolloError.prototype)
   }

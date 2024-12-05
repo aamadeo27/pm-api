@@ -10,13 +10,7 @@ const SALT_ROUNDS = 11
 
 export const resolvers: IResolvers<any, Context> = {
   Query: {
-    current_user: (_: unknown, __: unknown, { user }: Context) => {
-      if (!user) {
-        throw new AuthenticationError(`You're not an authenticated user`)
-      }
-
-      return user
-    },
+    current_user: (_: unknown, __: unknown, { user }: Context) => user,
     user: (_: unknown, { id }:{ id: number }) => {
       return prisma.user.findUnique({ where: { id }})
     },
@@ -41,7 +35,7 @@ export const resolvers: IResolvers<any, Context> = {
         throw new Error(`You can't signed up as logged in user`)
       }
 
-      const passwdHash = await hash(args.password, SALT_ROUNDS);
+      const passwdHash = await hash(args.password, SALT_ROUNDS)
 
       await prisma.user.create({
         data: {
