@@ -8,8 +8,6 @@ export const resolvers: IResolvers<any, Context> = {
     team: async (_: unknown, { id }: { id: number }, ctx: Context) => {
       const team = await prisma.team.findUnique({ where: { id } })
 
-      console.log('Team', team)
-
       return team
     },
     teams: async (_: unknown, { name }: { name: string }) => {

@@ -18,8 +18,6 @@ export const resolvers: IResolvers<any, Context> = {
         where = { name: { contains: where.name } }
       }
 
-      console.log({ where })
-
       return await prisma.project.findMany({ where })
     }
   },
