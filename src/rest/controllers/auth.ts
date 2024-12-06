@@ -10,13 +10,15 @@ export const login = async(req: Request, res: Response) => {
 
   const user = await prisma.user.findUnique({ where: { email, active: true } })
   if (!user) {
-    throw new CustomError(`Invalid User or Password`, 401)
+    res.status(401).send(`Invalid User or Password`)
+    return
   }
   
   const validPassword = await compare(password, user.password)
 
   if (!validPassword) {
-    throw new CustomError(`Invalid User or Password`, 401)
+    res.status(401).send(`Invalid User or Password`)
+    return
   }
 
   const token = generateToken(user)

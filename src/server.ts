@@ -10,10 +10,12 @@ import 'dotenv/config'
 import { errorHandler } from "./middleware/error-handler"
 import contextMiddleware from "./middleware/context-middleware"
 import restRoutes from "./rest/routes/v1"
+import { authPlugin, rolePlugin } from "./middleware/apollo-plugins"
 
 export const apolloServer = new ApolloServer<Context>({
   typeDefs: typeDefs,
   resolvers: resolvers,
+  plugins: [rolePlugin, authPlugin],
   formatError,
 })
 

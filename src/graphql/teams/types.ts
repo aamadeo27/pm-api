@@ -9,4 +9,15 @@ export const typeDefs = gql`
     members: [User]!
     projects: [Project]!
   }
+
+  type Mutation {
+    create_team(name: String!): Team!
+    update_team(id: Int!, name: String!): Team!
+    delete_team(id: Int!): Team!
+  }
+
+  type Query {
+    team(id: Int!): Team
+    teams(name: String): [Team!]
+  }
 `

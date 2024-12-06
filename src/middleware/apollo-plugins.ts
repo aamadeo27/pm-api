@@ -25,9 +25,10 @@ export const rolePlugin: ApolloServerPlugin<Context> = {
       async executionDidStart(){
         return {
           willResolveField({ contextValue, info }) {
-            if (info.fieldName !== 'create_user') return
-            
-            allowRoleGQL(contextValue.user!.role, info.fieldName)
+            if (info.fieldName === 'create_user') return
+            if (['Query','Mutation'].includes(info.parentType.name)){
+              allowRoleGQL(contextValue.user!.role, info.fieldName)
+            }
           }
         }
       }

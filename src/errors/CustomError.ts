@@ -8,3 +8,9 @@ export class CustomError extends Error {
     Object.setPrototypeOf(this, Error.prototype)
   }
 }
+
+export class InvalidTokenError extends Error {
+  constructor(message: string){
+    super(message)
+  }
+}
