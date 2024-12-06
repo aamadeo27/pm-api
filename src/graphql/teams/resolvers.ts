@@ -1,12 +1,14 @@
 import { IResolvers } from "@graphql-tools/utils"
 import { Context } from ".."
 import prisma from '../../utils/prisma-client'
-import { NotFoundError } from "../../errors/ApolloCustomErrors"
+import { InvalidInputError, NotFoundError } from "../../errors/ApolloCustomErrors"
 
 export const resolvers: IResolvers<any, Context> = {
   Query: {
     team: async (_: unknown, { id }: { id: number }, ctx: Context) => {
       const team = await prisma.team.findUnique({ where: { id } })
+
+      console.log('Team', team)
 
       return team
     },
@@ -16,6 +18,12 @@ export const resolvers: IResolvers<any, Context> = {
   },
   Mutation: {
     create_team: async function(parent: unknown, { name }: { name: string }, ctx: Context) {
+      const team = await prisma.team.findFirst({ where: { name } })
+
+      if (team) {
+        throw new InvalidInputError(`Team ${name} already exist`)
+      }
+
       return await prisma.team.create({
         data: {
           name,

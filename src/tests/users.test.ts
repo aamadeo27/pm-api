@@ -1,36 +1,14 @@
 import { AppRole, User } from '@prisma/client'
 import prisma from '../utils/prisma-client'
-import gql from 'graphql-tag'
 import { verifyToken } from '../middleware/jwt'
-import supertest from 'supertest'
-import { apolloServer, startServer } from '../server'
-import { Server } from 'http'
-import TestAgent from 'supertest/lib/agent'
+import mockServer from '../gqlPost'
+import gqlPost from '../gqlPost'
 
 jest.mock('../middleware/jwt', () => ({
   __esModule: true,
   verifyToken: jest.fn(),
   generateToken: jest.fn(),
 }))
-
-const PORT = process.env.PORT
-let app
-let server: Server
-let request: TestAgent
-beforeAll(async () => {
-  app = await startServer()
-
-  server = app.listen(0)
-  
-  jest.setTimeout(3000); // Set a timeout of 10 seconds for Jest
-
-  request = supertest(app)
-})
-
-afterAll(async () => {
-    apolloServer.stop()
-    server.close()
-})
 
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
@@ -43,72 +21,6 @@ const mockUser = {
   email: 'jdoe@gmail.com',
   team_id: 1 
 } as User
-
-// describe('Users resolvers', () => {
-//   let team: Team
-//   beforeAll(async () => {
-//     jest.clearAllMocks()
-//   })
-
-
-//   it('create_user', async () => {
-//     await jest.mocked(prisma.user.deleteMany({ where: { email: 'aamadeo-test@gmail.com'}})
-
-//     const query = gql`
-//     mutation CreateUser($args: UserCreateInput!) {
-//       create_user(args: $args)
-//     }`  
-
-//     const response = await request.post('/graphql').send({
-//       query: query.loc?.source.body,
-//       variables: {
-//         args: {
-//           name: 'albert',
-//           email: 'aamadeo-test@gmail.com',
-//           password: 'thisismyrealpassword',
-//           team_id: team.id
-//         },
-//       }
-//     })
-
-//     expect(response.body.data.create_user).toBe(true)
-//   })
-
-//   it(`doesn't allow to create a user if email already exists`, async () => {
-//     await jest.mocked(prisma.user.upsert({
-//       create: {
-//         email: 'aamadeo-test-2@gmail.com',
-//         name: 'albert',
-//         password: '',
-//         team_id: team.id
-//       },
-//       where: { email: 'aamadeo-test-2@gmail.com'},
-//       update: {},
-//     })
-
-//     const query = gql`
-//     mutation CreateUser($args: UserCreateInput!) {
-//       create_user(args: $args)
-//     }`
-
-//     const response = await request.post('/graphql').send({
-//       query: query.loc?.source.body,
-//       variables: {
-//         args: {
-//           name: 'albert',
-//           email: 'aamadeo-test-2@gmail.com',
-//           password: 'thisismyrealpassword',
-//           team_id: team.id,
-//         }
-//       }
-//     })
-
-//     expect(response.body.errors?.[0]).toMatchObject({
-//        message: 'Bad Request: Email already exist',
-//        code: 'INVALID_INPUT_ERROR',
-//     })
-//   })
-// })
 
 
 describe('GraphQL API User Resolver', () => {
@@ -132,10 +44,7 @@ describe('GraphQL API User Resolver', () => {
 
       jest.mocked(verifyToken).mockReturnValueOnce(mockUser)
 
-      const response = await request
-        .post('/graphql')
-        .send({ query })
-        .set('Authorization', 'Bearer mockToken')
+      const response = await gqlPost({ query })
 
       expect(response.statusCode).toBe(200)
       expect(response.body.data.current_user).toEqual(mockUser)
@@ -151,8 +60,60 @@ describe('GraphQL API User Resolver', () => {
         }
       `
 
-      const response = await request.post('/graphql').send({ query })
+      const response = await gqlPost({ query })
       expect(response.body.errors[0].message).toBe(`Authorization Failed: Unauthorized access`)
+    })
+  })
+
+  describe('Query: user', () => {
+    it('should return user by id', async () => {
+      jest.mocked(prisma.user.findUnique).mockResolvedValueOnce(mockUser)
+      const query = `
+        query GetUser($id: Int!){
+          user(id: $id) {
+            id
+            name
+            email
+            team_id
+            role
+          }
+        }
+      `
+
+      jest.mocked(verifyToken).mockReturnValueOnce(mockUser)
+
+      const response = await gqlPost({ query, variables: { id: 1 } })
+
+      expect(response.statusCode).toBe(200)
+      expect(response.body.data.user).toEqual(mockUser)
+    })
+  })
+
+  describe('Query: users', () => {
+    it('should return users by query', async () => {
+      jest.mocked(prisma.user.findMany).mockResolvedValueOnce([
+        mockUser,
+        { ...mockUser, id: 2 },
+        { ...mockUser, id: 3 },
+      ])
+      const query = `
+        query {
+          users {
+            id
+            name
+            email
+            team_id
+            role
+          }
+        }
+      `
+
+      jest.mocked(verifyToken).mockReturnValueOnce(mockUser)
+
+      const response = await gqlPost({ query })
+
+      expect(response.statusCode).toBe(200)
+      expect(response.body.data.users).toHaveLength(3)
     })
   })
 
@@ -176,7 +137,7 @@ describe('GraphQL API User Resolver', () => {
         },
       }
 
-      const response = await request.post('/graphql').send({ query: mutation, variables })
+      const response = await gqlPost({ query: mutation, variables })
       expect(response.statusCode).toBe(200)
       expect(response.body.data.create_user).toBe(true)
     })
@@ -199,7 +160,7 @@ describe('GraphQL API User Resolver', () => {
         },
       }
 
-      const response = await request.post('/graphql').send({ query: mutation, variables })
+      const response = await gqlPost({ query: mutation, variables })
       expect(response.body.errors[0].message).toBe('Bad Request: Email already exist')
     })
   })
@@ -226,10 +187,7 @@ describe('GraphQL API User Resolver', () => {
         },
       }
 
-      const response = await request
-        .post('/graphql')
-        .send({ query: mutation, variables })
-        .set('Authorization', 'Bearer mockToken')
+      const response = await gqlPost({ query: mutation, variables })
 
       expect(response.statusCode).toBe(200)
       expect(response.body.data.update_user).toEqual({
@@ -255,10 +213,7 @@ describe('GraphQL API User Resolver', () => {
 
       const variables = { id: 1 }
 
-      const response = await request
-        .post('/graphql')
-        .send({ query: mutation, variables })
-        .set('Authorization', 'Bearer mockToken')
+      const response = await gqlPost({ query: mutation, variables })
 
       expect(response.statusCode).toBe(200)
       expect(response.body.data.delete_user).toEqual({ id: 1 })

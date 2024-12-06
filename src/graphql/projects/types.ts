@@ -29,7 +29,7 @@ export const typeDefs = gql`
   }
 
   type Query {
-    project: Project
+    project(id: Int!): Project
     projects(name: String, team_id: Int): [Project!]
   }
 `
