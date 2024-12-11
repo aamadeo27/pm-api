@@ -9,8 +9,10 @@ export type TaskCreateInput = {
 export type TaskUpdateInput = {
   id: number
   name?: string
+  thumbnail?: string
   description?: string
   assignee_id?: number
+  completed_at?: Date
 }
 
 export type TaskQueryInput = {
@@ -31,18 +33,22 @@ export const typeDefs = gql`
   input TaskUpdateInput {
     id: Int!
     name: String
+    thumbnail: String
     description: String
     assignee_id: Int
+    completed_at: DateTime
   }
 
   type Task {
     id: Int!
     name: String!
+    thumbnail: String
     description: String!
     project_id: Int!
     assignee_id: Int
     created_at: DateTime!
     updated_at: DateTime!
+    completed_at: DateTime!
 
     project: Project!
     assignee: User

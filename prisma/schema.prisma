@@ -21,6 +21,7 @@ enum AppRole {
 
 model User {
   id         Int      @id @default(autoincrement())
+  avatar_url String?
   name       String
   email      String   @unique
   password   String
@@ -38,6 +39,7 @@ model User {
 model Team {
   id         Int      @id @default(autoincrement())
   name       String   @unique
+  thumbnail  String?
   created_at DateTime @default(now())
 
   members  User[]    @relation("TeamMembers")
@@ -45,24 +47,28 @@ model Team {
 }
 
 model Project {
-  id         Int      @id @default(autoincrement())
-  name       String   @unique
-  team_id    Int
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  thumbnail    String?
+  team_id      Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+  completed_at DateTime?
 
   team  Team   @relation(fields: [team_id], references: [id])
   tasks Task[]
 }
 
 model Task {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String
-  project_id  Int
-  assignee_id Int?
-  created_at  DateTime @default(now())
-  updated_at  DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  name         String
+  thumbnail    String?
+  description  String
+  project_id   Int
+  assignee_id  Int?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @default(now())
+  completed_at DateTime?
 
   project  Project @relation(fields: [project_id], references: [id])
   assignee User?   @relation(fields: [assignee_id], references: [id])

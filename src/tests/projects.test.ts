@@ -13,6 +13,7 @@ const mockUser = {
   id: 1,
   role: AppRole.project_manager,
   name: 'John Doe',
+  avatar_url: null,
   email: 'jdoe@gmail.com',
   team_id: 1,
   project_id: 1,
@@ -103,6 +104,28 @@ describe('GraphQL API Project Resolver', () => {
       expect(response.statusCode).toBe(200)
       expect(response.body.data.create_project).toMatchObject(mockProject)
     })
+
+    it('should throw an error if the email already exists', async () => {
+      jest.mocked(prisma.project.findUnique).mockResolvedValueOnce(mockProject)
+      jest.mocked(verifyToken).mockReturnValueOnce(mockUser)
+
+      const mutation = `
+        mutation CreateProject($name: String!) {
+          create_project(name: $name) {
+            id
+            name
+            team_id
+          }
+        }
+      `
+
+      const variables = {
+        name: 'Cloned Sheep',
+      }
+
+      const response = await gqlPost({ query: mutation, variables })
+      expect(response.body.errors[0].message).toBe('Bad Request: Project Cloned Sheep already exist.')
+    })
   })
 
   describe('Mutation: update_project', () => {
@@ -112,17 +135,20 @@ describe('GraphQL API Project Resolver', () => {
       jest.mocked(verifyToken).mockReturnValueOnce(mockUser)
 
       const mutation = `
-        mutation UpdateProject($name: String!, $id: Int!) {
-          update_project(name: $name, id: $id) {
+        mutation UpdateProject($args: ProjectUpdateInput!) {
+          update_project(args: $args) {
             id
             name
+            thumbnail
           }
         }
       `
 
       const variables = {
-        id: 1,
-        name: 'Project Updated',
+        args: {
+          id: 1,
+          name: 'Project Updated',
+        }
       }
 
       const response = await gqlPost({ query: mutation, variables })
@@ -131,6 +157,7 @@ describe('GraphQL API Project Resolver', () => {
       expect(response.body.data.update_project).toEqual({
         id: 1,
         name: 'Project Updated',
+        thumbnail: null
       })
     })
   })
