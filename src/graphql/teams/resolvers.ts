@@ -1,9 +1,19 @@
 import { IResolvers } from "@graphql-tools/utils"
 import { Context } from ".."
 import prisma from '../../utils/prisma-client'
-import { InvalidInputError, NotFoundError } from "../../errors/ApolloCustomErrors"
+import { AuthorizationError, InvalidInputError, NotFoundError } from "../../errors/ApolloCustomErrors"
+import { TeamUpdateInput } from "./types"
+import { AppRole, Team } from "@prisma/client"
 
 export const resolvers: IResolvers<any, Context> = {
+  Team: {
+    members: async (team: Team) => {
+      return prisma.team.findUnique({ where: { id: team.id }}).members()
+    },
+    projects: async (team: Team) => {
+      return prisma.team.findUnique({ where: { id: team.id }}).projects()
+    },
+  },
   Query: {
     team: async (_: unknown, { id }: { id: number }, ctx: Context) => {
       const team = await prisma.team.findUnique({ where: { id } })
@@ -28,15 +38,21 @@ export const resolvers: IResolvers<any, Context> = {
         }
       })
     },
-    update_team: async function(_: unknown, args: { id: number, name: string }, ctx: Context){
+    update_team: async function(_: unknown, { args }: { args: TeamUpdateInput }, ctx: Context){
       
+      if ( ctx.user!.role === AppRole.project_manager && args.id !== ctx.user?.team_id ) {
+        throw new AuthorizationError(`Only admins and the team manager can update this team`)
+      }
+
       const team = await prisma.team.findUnique({ where: { id: args.id } })
 
       if (!team) {
         throw new NotFoundError(`Team ${args.id} not found`)
       }
 
-      return await prisma.team.update({ where: { id: args.id }, data: { name: args.name } })
+      const { id, ...data } = args
+
+      return await prisma.team.update({ where: { id }, data })
     },
     delete_team: async function(_: unknown, args: { id: number }, ctx: Context){
       const team = await prisma.team.findUnique({ where: { id: args.id } })

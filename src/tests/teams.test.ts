@@ -99,7 +99,7 @@ describe('GraphQL API Team Resolver', () => {
 
     it('should throw an error if the name already exists', async () => {
       jest.mocked(prisma.team.findFirst).mockResolvedValueOnce({ id: 1, name: 'Crazy Team' } as Team)
-      jest.mocked(verifyToken).mockReturnValueOnce(mockUser)
+      jest.mocked(verifyToken).mockReturnValueOnce({ ...mockUser })
 
       const mutation = `
         mutation CreateTeam($name: String!) {
@@ -120,23 +120,26 @@ describe('GraphQL API Team Resolver', () => {
   })
 
   describe('Mutation: update_team', () => {
-    it(`should update a team's information`, async () => {
-      jest.mocked(prisma.team.findUnique).mockResolvedValueOnce({ id: 1, name: 'Team Doe' } as Team)
-      jest.mocked(prisma.team.update).mockResolvedValueOnce({ id: 1, name: 'Team Updated' } as Team)
-      jest.mocked(verifyToken).mockReturnValueOnce(mockUser)
-
-      const mutation = `
-        mutation UpdateTeam($name: String!, $id: Int!) {
-          update_team(name: $name, id: $id) {
+    const mutation = `
+        mutation UpdateTeam($args: TeamUpdateInput!) {
+          update_team(args: $args) {
             id
             name
+            thumbnail
           }
         }
       `
 
+    it(`should update a team's information`, async () => {
+      jest.mocked(prisma.team.findUnique).mockResolvedValueOnce({ id: 1, name: 'Team Doe' } as Team)
+      jest.mocked(prisma.team.update).mockResolvedValueOnce({ id: 1, name: 'Team Updated' } as Team)
+      jest.mocked(verifyToken).mockReturnValueOnce({ ...mockUser, role: AppRole.project_manager, team_id: 1 })
+
       const variables = {
-        id: 1,
-        name: 'Team Updated',
+        args: {
+          id: 1,
+          name: 'Team Updated',
+        }
       }
 
       const response = await gqlPost({ query: mutation, variables })
@@ -145,7 +148,32 @@ describe('GraphQL API Team Resolver', () => {
       expect(response.body.data.update_team).toEqual({
         id: 1,
         name: 'Team Updated',
+        thumbnail: null
       })
+    })
+
+    it('should throw an error if user is not the owner of the team', async () => {
+      jest.mocked(prisma.team.findUnique).mockResolvedValueOnce({ id: 1, name: 'Team Doe' } as Team)
+      jest.mocked(prisma.team.update).mockResolvedValueOnce({ 
+        id: 1,
+        name: 'Team Updated',
+        thumbnail: 'https://imgur/some/image.png'
+      } as Team)
+      jest.mocked(verifyToken).mockReturnValueOnce({ ...mockUser, role: AppRole.project_manager, team_id: 2 })
+
+      const variables = {
+        args: {
+          id: 1,
+          name: 'Team Updated',
+          thumbnail: 'https://imgur/some/image.png'
+        }
+        
+      }
+
+      const response = await gqlPost({ query: mutation, variables })
+
+      expect(response.statusCode).toBe(200)
+      expect(response.body.errors[0].message).toBe('Authorization Failed: Only admins and the team manager can update this team')
     })
   })
 

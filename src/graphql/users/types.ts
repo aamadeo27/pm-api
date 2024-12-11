@@ -11,6 +11,7 @@ export type UserCreationInput = {
 export type UserUpdateInput = {
   id: number
   name?: string
+  avatar_url?: string
   password?: string
   team_id?: number
   active?: boolean
@@ -34,6 +35,7 @@ export const typeDefs = gql`
   type User {
     id: Int!
     name: String!
+    avatar_url: String
     email: String!
     active: Boolean!
     role: AppRole!
@@ -46,6 +48,7 @@ export const typeDefs = gql`
   input UserUpdateInput {
     id: Int!
     name: String
+    avatar_url: String
     password: String
     active: Boolean
     role: AppRole

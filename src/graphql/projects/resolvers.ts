@@ -2,11 +2,17 @@ import { IResolvers } from "@graphql-tools/utils"
 import { Context } from ".."
 import prisma from '../../utils/prisma-client'
 import { ProjectQueryInput, ProjectUpdateInput } from "./types"
-import { AuthorizationError, NotFoundError } from "../../errors/ApolloCustomErrors"
+import { AuthorizationError, InvalidInputError, NotFoundError } from "../../errors/ApolloCustomErrors"
+import { Project } from "@prisma/client"
 
 const SALT_ROUNDS = 11
 
 export const resolvers: IResolvers<any, Context> = {
+  Project: {
+    tasks: (p: Project) => {
+      return prisma.project.findUnique({ where: { id: p.id } }).tasks()
+    },
+  },
   Query: {
     project: (_: unknown, { id }: { id: number }, ctx: Context) => {
       return prisma.project.findUnique({ where: { id } })
@@ -23,6 +29,12 @@ export const resolvers: IResolvers<any, Context> = {
   },
   Mutation: {
     create_project: async function(parent: unknown, { name }: { name: string }, ctx: Context) {
+      const project = await prisma.project.findUnique({ where: { name } })
+
+      if (project) {
+        throw new InvalidInputError(`Project ${name} already exist.`)
+      }
+
       return await prisma.project.create({
         data: {
           name,
@@ -42,7 +54,8 @@ export const resolvers: IResolvers<any, Context> = {
         throw new AuthorizationError(`This project belongs to a different team`)
       }
 
-      return await prisma.project.update({ where: { id: args.id }, data: { name: args.name } })
+      const { id, ...data } = args
+      return await prisma.project.update({ where: { id }, data })
     },
     delete_project: async function(_: unknown, args: { id: number }, ctx: Context){
       const project = await prisma.project.findUnique({ where: { id: args.id } })

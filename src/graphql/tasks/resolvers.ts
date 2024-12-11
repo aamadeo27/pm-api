@@ -84,14 +84,8 @@ export const resolvers: IResolvers<any, Context> = {
         throw new AuthorizationError(`This task is defined in a project that belongs to a different team`)
       }
 
-      return await prisma.task.update({ 
-        where: { id: args.id },
-        data: { 
-          name: args.name,
-          description: args.description,
-          assignee_id: args.assignee_id
-        } 
-      })
+      const { id, ...data } = args
+      return await prisma.task.update({ where: { id }, data  })
     },
     delete_task: async function(_: unknown, args: { id: number }, ctx: Context){
       const task = await prisma.task.findUnique({ where: { id: args.id }, include: { project: true } })
