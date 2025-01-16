@@ -12,6 +12,9 @@ export const resolvers: IResolvers<any, Context> = {
     tasks: (p: Project) => {
       return prisma.project.findUnique({ where: { id: p.id } }).tasks()
     },
+    team: (p: Project) => {
+      return prisma.project.findUnique({ where: { id: p.id } }).team()
+    }
   },
   Query: {
     project: (_: unknown, { id }: { id: number }, ctx: Context) => {
